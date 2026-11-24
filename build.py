@@ -31,4 +31,7 @@ open(here+"/index.html","w").write(page("",None))
 for slug,c in json.load(open(here+"/customers.json")).items():
     os.makedirs(here+"/"+slug,exist_ok=True)
     open(here+"/"+slug+"/index.html","w").write(page("../",dict(c,slug=slug)))
+cust=json.load(open(here+"/customers.json"))
+amap={k.lower():k for k in cust}
+open(here+"/404.html","w").write('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found</title>\n<script>(function(){var m='+json.dumps(amap)+';var p=location.pathname.replace(/^\\/+|\\/+$/g,"");var k=m[p.toLowerCase()];if(k&&k!==p)location.replace("/"+k+"/"+location.search)})();</script>\n<style>body{font:16px/1.5 system-ui,sans-serif;margin:0;padding:48px 16px;background:#f6f8fb;color:#14233a}main{max-width:480px;margin:0 auto}a{color:#1f4f9c}</style></head>\n<body><main><h1>Page not found</h1><p>Check the link you were given, or <a href="/">go to the booking page</a>.</p></main></body></html>\n')
 print("built index.html and",len(json.load(open(here+"/customers.json"))),"customer page(s)")
