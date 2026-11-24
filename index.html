@@ -86,7 +86,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px s
 <p class="note" id="built" style="margin-top:10px"></p>
 </section>
 
-<section class="card" id="rsec" aria-label="Rooms" hidden><h2>Times</h2><div class="trow"><label>Start time<input id="t1" type="time" value="09:00"></label><label>End time<input id="t2" type="time" value="17:00"></label></div><h2 style="margin-top:16px">Available rooms</h2><p class="note" style="margin-bottom:10px">Pick one or more rooms. Rooms already booked during your dates and times are greyed out.</p><div class="tabs" id="tabs"></div></section>
+<section class="card" id="rsec" aria-label="Rooms" hidden><h2>Times <span class="note" style="font-weight:400">(required)</span></h2><div class="trow"><label>Start time<input id="t1" type="time"></label><label>End time<input id="t2" type="time"></label></div><h2 style="margin-top:16px">Available rooms</h2><p class="note" style="margin-bottom:10px">Pick one or more rooms. Rooms already booked during your dates and times are greyed out.</p><div class="tabs" id="tabs"></div></section>
 
 <section class="card" aria-label="Request"><h2>Your details</h2>
 <p class="note" id="saved" hidden style="margin:-4px 0 12px">Using the details saved on this device. <button type="button" class="lnk" id="forget" style="margin:0">Not you? Clear saved info</button></p>
@@ -131,6 +131,7 @@ function dayInfo(day){const x=D.rooms.map(r=>info(day,r.id).k);const free=x.filt
 function span(x,y){const[s,e]=x<=y?[x,y]:[y,x];const d0=new Date(s+"T00:00:00Z"),out=[];for(let d=d0;iso(d)<=e;d=new Date(d.getTime()+864e5))out.push(iso(d));return out}
 function rooms(){const sec=$("#rsec");if(!(a&&b)){sec.hidden=true;return}
  sec.hidden=false;const days=span(a,b);const box=$("#tabs");box.innerHTML="";let any=false;
+ {const q1=$("#t1").value,q2=$("#t2").value;if(!(q1&&q2&&q2>q1)){sel.clear();const p=document.createElement("p");p.className="note";p.style.gridColumn="1/-1";p.textContent=(q1&&q2)?"End time must be after start time.":"Enter your start and end time above to see which rooms are free at those hours.";box.append(p);return}}
  for(const r of D.rooms){const per=days.map(d=>info(d,r.id));const x=document.createElement("button");x.type="button";x.className="tab";
   const full=per.some(p=>p.k==="full"),part=per.some(p=>p.k==="part"),w1=$("#t1").value,w2=$("#t2").value,tv=w1&&w2&&w2>w1;
   const clash=tv&&per.some(p=>p.k==="part"&&p.iv.some(([s,e])=>w1<e&&w2>s));
@@ -168,9 +169,10 @@ async function sha(s){try{const h=await crypto.subtle.digest("SHA-256",new TextE
 $("#f").addEventListener("submit",async ev=>{ev.preventDefault();const er=$("#err");er.textContent="";
  const nm=$("#nm").value.trim(),em=$("#em").value.trim(),co=$("#co").value.trim();
  if(!a||!b){er.textContent="Choose your first and last day on the calendar first.";return}
- if(!sel.size){er.textContent="Pick at least one room.";return}
  if(!nm||!/^\S+@\S+\.\S+$/.test(em)){er.textContent="Enter your name and a valid email address.";return}
- if($("#t2").value&&$("#t1").value&&$("#t2").value<=$("#t1").value&&a===b){er.textContent="End time must be after start time.";return}
+ if(!$("#t1").value||!$("#t2").value){er.textContent="Choose your start and end time.";return}
+ if($("#t2").value<=$("#t1").value){er.textContent="End time must be after start time.";return}
+ if(!sel.size){er.textContent="Pick at least one room.";return}
  const rn=D.rooms.filter(r=>sel.has(r.id)).map(r=>r.name).join(", ");
  let ap="";if(APPROVED.length){ap="\nOn approved customer list: "+(APPROVED.includes(await sha(em.toLowerCase()))?"yes":"no")}
  const L=["Room request",(sel.size>1?"Rooms: ":"Room: ")+rn,"Dates: "+a+(a===b?"":" to "+b),"Times: "+($("#t1").value||"?")+" to "+($("#t2").value||"?"),"People: "+($("#hc").value||"?"),"Name: "+nm,"Company: "+co,"Email: "+em,"Phone: "+$("#ph").value.trim(),"Notes: "+$("#nt").value.trim()].join("\n")+(window.CUSTOMER?"\nCustomer page: "+window.CUSTOMER.company+" ("+window.CUSTOMER.slug+")":"")+ap;
