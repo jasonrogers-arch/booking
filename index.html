@@ -82,6 +82,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px s
 <section class="card" id="rsec" aria-label="Rooms" hidden><h2>Times</h2><div class="trow"><label>Start time<input id="t1" type="time" value="09:00"></label><label>End time<input id="t2" type="time" value="17:00"></label></div><h2 style="margin-top:16px">Available rooms</h2><p class="note" style="margin-bottom:10px">Pick one or more rooms. Rooms already booked during your dates and times are greyed out.</p><div class="tabs" id="tabs"></div></section>
 
 <section class="card" aria-label="Request"><h2>Your details</h2>
+<p class="note" id="saved" hidden style="margin:-4px 0 12px">Using the details saved on this device. <button type="button" class="lnk" id="forget" style="margin:0">Not you? Clear saved info</button></p>
 <form id="f" novalidate>
 <label>Name<input id="nm" autocomplete="name"></label>
 <label>Company<input id="co" autocomplete="organization"></label>
@@ -143,6 +144,8 @@ function draw(){const[y,m]=ym;$("#mt").textContent=MN[m]+" "+y;
  const fmt=s=>new Date(s+"T00:00:00Z").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric",timeZone:"UTC"});
  $("#picked").textContent=!a?"Choose your first day.":single?fmt(a)+". Need more than one day? Tap your last day."+"":fmt(a)+" to "+fmt(b)+". Tap any day to start over.";$("#clr").hidden=!a;rooms()}
 function pick(ds){if(a&&single){if(ds===a){a=b=null;single=false;sel.clear();draw();return}const lo=ds<a?ds:a,hi=ds<a?a:ds;const bad=span(lo,hi).find(x=>dayInfo(x).k==="full");if(bad){$("#picked").textContent="That range includes a fully booked day. Choose dates with no hatched days in between.";a=b=ds;single=true;sel.clear();draw();return}a=lo;b=hi;single=false}else{a=b=ds;single=true;sel.clear()}draw()}
+(function(){try{const s=JSON.parse(localStorage.getItem("tu_cust")||"null");if(s&&(s.nm||s.em)){$("#nm").value=s.nm||"";$("#co").value=s.co||"";$("#em").value=s.em||"";$("#ph").value=s.ph||"";$("#saved").hidden=false}}catch(e){}})();
+$("#forget").onclick=()=>{try{localStorage.removeItem("tu_cust")}catch(e){}["#nm","#co","#em","#ph"].forEach(i=>$(i).value="");$("#saved").hidden=true};
 $("#clr").onclick=()=>{a=b=null;single=false;sel.clear();draw()};
 ["#t1","#t2"].forEach(i=>$(i).addEventListener("input",rooms));
 $("#prev").onclick=()=>{ym=ym[1]?[ym[0],ym[1]-1]:[ym[0]-1,11];draw()};
@@ -159,6 +162,7 @@ $("#f").addEventListener("submit",async ev=>{ev.preventDefault();const er=$("#er
  const L=["Room request",(sel.size>1?"Rooms: ":"Room: ")+rn,"Dates: "+a+(a===b?"":" to "+b),"Times: "+($("#t1").value||"?")+" to "+($("#t2").value||"?"),"People: "+($("#hc").value||"?"),"Name: "+nm,"Company: "+co,"Email: "+em,"Phone: "+$("#ph").value.trim(),"Notes: "+$("#nt").value.trim()].join("\n")+ap;
  $("#msg").textContent=L;const subj="Room request: "+rn+", "+a;
  $("#mail").href="mailto:"+TO.join(",")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(L);
+ try{localStorage.setItem("tu_cust",JSON.stringify({nm:nm,co:co,em:em,ph:$("#ph").value.trim()}))}catch(e){}
  $("#out").hidden=false;$("#out").scrollIntoView({behavior:"smooth",block:"nearest"})});
 $("#copy").onclick=async()=>{const t=TO.join(", ")+"\n"+$("#msg").textContent;try{await navigator.clipboard.writeText(t);$("#cs").textContent="Copied"}catch(e){const r=document.createRange();r.selectNodeContents($("#msg"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("#cs").textContent="Select and copy the text above"}};
 $("#built").textContent="Availability is updated once each weekday morning (last update "+D.built+"), so it can change during the day. We confirm every request by email.";
