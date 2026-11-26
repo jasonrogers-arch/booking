@@ -1,16 +1,14 @@
 {
-  "mh": {
-    "company": "Musselman & Hall",
-    "name": "Alyssa Walz",
-    "email": "awalz@musselmanandhall.com",
-    "phone": "(816) 861-1234",
-    "logo": "logos/mh.png",
-    "favorite": "r107",
-    "match": [
-      "musselman"
-    ],
-    "hide": [
-      "tu2149929182-r107"
-    ]
-  }
+ "mh": {
+  "company": "Musselman & Hall",
+  "name": "Alyssa Walz",
+  "email": "awalz@musselmanandhall.com",
+  "phone": "(816) 861-1234",
+  "logo": "logos/mh.png",
+  "favorite": "r107",
+  "match": [
+   "musselman"
+  ],
+  "hide": []
+ }
 }

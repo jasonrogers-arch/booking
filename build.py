@@ -19,7 +19,7 @@ if len(sys.argv)==3:
     ALL=[]
     for f in glob.glob(ev_dir+"/*.json"):
         d=json.load(open(f));d["_id"]=os.path.basename(f)[:-5]
-        if d.get("cal") in ids and (d.get("end") or d.get("start") or "")>=today:ALL.append(d)
+        if (d.get("cal") in ids or d.get("cal")=="reminder") and (d.get("end") or d.get("start") or "")>=today:ALL.append(d)
     open(here+"/availability.js","w").write("window.AVAIL="+json.dumps({"busy":busy,"built":today},separators=(",",":"))+";\n")
     print({r:len(v) for r,v in busy.items()})
 tpl=open(here+"/template.html").read()
@@ -43,7 +43,7 @@ for slug,c in json.load(open(here+"/customers.json")).items():
         for d in ALL:
             if d["_id"] in hide:continue
             if not any(p in (d.get("title") or "").lower() for p in pats):continue
-            mine.append([d["start"],d.get("end") or d["start"],d.get("t1") or "",d.get("t2") or "",names[d["cal"]].split(" ")[0]])
+            mine.append([d["start"],d.get("end") or d["start"],d.get("t1") or "",d.get("t2") or "",names[d["cal"]].split(" ")[0] if d["cal"] in names else "Event"])
         mine.sort()
         open(here+"/"+slug+"/bookings.js","w").write("window.MINE="+json.dumps(mine,separators=(",",":"))+";\n")
         print(slug,"bookings:",len(mine))
